@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,6 +40,9 @@ class MainActivity : AppCompatActivity() {
     var activePlayer = 1
     var player1 = arrayListOf<Int>()
     var player2 = arrayListOf<Int>()
+
+    var countWin1 = 0
+    var countWin2 = 0
 
     fun playGame(cellId:Int, buSelected:Button){
 
@@ -128,11 +132,51 @@ class MainActivity : AppCompatActivity() {
             winner = 2
         }
 
-
         if (winner == 1){
+            countWin1++
             Toast.makeText(this,"Player 1 win the game",Toast.LENGTH_LONG).show()
+            tv1.text = "Player 1 Wins\n $countWin1"
+            resetGame()
         }else if (winner == 2){
+            countWin2++
             Toast.makeText(this,"Player 2 win the game",Toast.LENGTH_LONG).show()
+            tv2.text = "Player 2 Wins\n $countWin2"
+            resetGame()
+        }
+
+        if((player1.size + player2.size) == 9 ){
+            Toast.makeText(this,"DRAW",Toast.LENGTH_LONG).show()
+            resetGame()
+        }
+
+    }
+
+    fun resetGame(){
+
+        activePlayer = 1
+
+        player1.clear()
+        player2.clear()
+
+        for(cellId in 1..9){
+            var buSelected:Button?
+
+            buSelected = when(cellId){
+                1 -> bu1
+                2 -> bu2
+                3 -> bu3
+                4 -> bu4
+                5 -> bu5
+                6 -> bu6
+                7 -> bu7
+                8 -> bu8
+                9 -> bu9
+                else -> {bu1}
+            }
+            buSelected!!.text = ""
+            buSelected!!.setBackgroundResource(R.color.colorButtonTicTacToe)
+            buSelected.isEnabled = true
+
         }
 
     }
