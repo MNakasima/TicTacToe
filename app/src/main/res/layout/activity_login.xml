@@ -28,6 +28,7 @@
         android:ems="10"
         android:hint="Enter your password"
         android:inputType="textPersonName"
+        android:password="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
