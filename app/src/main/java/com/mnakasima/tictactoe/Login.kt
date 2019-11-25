@@ -5,18 +5,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import com.google.firebase.auth.FirebaseAuth
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import android.util.Log
 import android.widget.Toast
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_login.*
-
 
 class Login : AppCompatActivity() {
 
     private var mAuth: FirebaseAuth? = null
+
+    private var database = FirebaseDatabase.getInstance()
+    private var myRef = database.reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +44,13 @@ class Login : AppCompatActivity() {
 
                 if(task.isSuccessful){
                     Toast.makeText(applicationContext, "Success Login", Toast.LENGTH_LONG).show()
+
+                    var currentUser=mAuth!!.currentUser
+
+                    //save in
+                    if(currentUser!=null) {
+                        myRef.child("Users").child(splitString(currentUser.email.toString())).setValue(currentUser.uid)
+                    }
                     loadMain()
                 }else{
                     Toast.makeText(applicationContext, "Login Failed", Toast.LENGTH_LONG).show()
@@ -60,6 +65,7 @@ class Login : AppCompatActivity() {
         var currentUser=mAuth!!.currentUser
 
         if(currentUser!=null){
+
             var intent = Intent(this, MainActivity::class.java)
             intent.putExtra("email", currentUser!!.email)
             intent.putExtra("uid", currentUser!!.uid)
@@ -67,6 +73,11 @@ class Login : AppCompatActivity() {
             startActivity(intent)
         }
 
+    }
+
+    fun splitString(str:String):String{
+        var split = str.split("@")
+        return split[0]
     }
 
 }
