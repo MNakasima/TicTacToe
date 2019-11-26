@@ -11,12 +11,17 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
+import com.google.firebase.database.FirebaseDatabase
 
 
 class MainActivity : AppCompatActivity() {
 
     private var mFirebaseAnalytics: FirebaseAnalytics? = null
+
+    private var database = FirebaseDatabase.getInstance()
+    private var myRef = database.reference
+
+    var myEmail:String?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +29,9 @@ class MainActivity : AppCompatActivity() {
 
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        var bundle:Bundle?=intent.extras
+        myEmail = bundle!!.getString("email")
 
     }
 
@@ -195,13 +203,15 @@ class MainActivity : AppCompatActivity() {
 
     fun buRequestEvent(view:View){
 
-        var userEmail = etEmail.text
+        var userEmail = etEmail.text.toString()
+
+        myRef.child("Users").child(userEmail).child("Request").push().setValue(myEmail)
 
     }
 
     fun buAcceptEvent(view:View){
 
-
+        var userEmail = etEmail.text
 
     }
 
