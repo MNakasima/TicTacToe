@@ -58,9 +58,8 @@ class MainActivity : AppCompatActivity() {
             R.id.bu9 -> cellId = 9
         }
 
-        //Log.d("buClick", buSelected.id.toString())
-        //Log.d("cellId", cellId.toString())
-        playGame(cellId,buSelected)
+       // playGame(cellId,buSelected)
+        myRef.child("PlayerOnline").child(sessionID!!).child(cellId.toString()).setValue(myEmail)
     }
 
     var activePlayer = 1
@@ -177,6 +176,28 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    fun autoPlay(cellID:Int){
+
+        var buSelect:Button?
+        when(cellID){
+            1-> buSelect=bu1
+            2-> buSelect=bu2
+            3-> buSelect=bu3
+            4-> buSelect=bu4
+            5-> buSelect=bu5
+            6-> buSelect=bu6
+            7-> buSelect=bu7
+            8-> buSelect=bu8
+            9-> buSelect=bu9
+            else->{
+                buSelect=bu1
+            }
+        }
+
+        playGame(cellID,buSelect)
+
+    }
+
     fun resetGame(){
 
         activePlayer = 1
@@ -208,18 +229,63 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun buRequestEvent(view:View){
-
         var userEmail = etEmail.text.toString()
-
         myRef.child("Users").child(splitString(userEmail)).child("Request").push().setValue(myEmail)
 
+        playerOnline(splitString(myEmail!!)+splitString(userEmail))
+        playerSymbol="X"
     }
 
     fun buAcceptEvent(view:View){
-
         var userEmail = etEmail.text.toString()
         myRef.child("Users").child(splitString(userEmail)).child("Request").push().setValue(myEmail)
 
+        playerOnline(splitString(userEmail)+splitString(myEmail!!))
+        playerSymbol="O"
+    }
+
+    var sessionID:String?=null
+    var playerSymbol:String?=null
+
+    fun playerOnline(sessionID:String){
+        this.sessionID=sessionID
+
+        myRef.child("PlayerOnline").removeValue()
+        myRef.child("PlayerOnline").child(sessionID)
+            .addValueEventListener(object: ValueEventListener{
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                }
+
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    try{
+                        player1.clear()
+                        player2.clear()
+                        var td = dataSnapshot!!.value as HashMap<String, Any>
+
+                        if(td != null){
+                            var value:String
+                            for(key in td.keys){
+                                value = td[key] as String
+
+                                if(value!=myEmail){
+                                    activePlayer = if(playerSymbol==="X") 1 else 2
+                                }else{
+                                    activePlayer = if(playerSymbol==="X") 2 else 1
+                                }
+
+                                autoPlay(key.toInt())
+
+                            }
+
+                        }
+
+                    }catch(ex:Exception){
+
+                    }
+                }
+
+            })
     }
 
     fun incomingCalls(){
@@ -228,11 +294,6 @@ class MainActivity : AppCompatActivity() {
             .addValueEventListener(object: ValueEventListener{
 
                 override fun onCancelled(databaseError: DatabaseError) {
-                    try{
-
-                    }catch(ex:Exception){
-
-                    }
                 }
 
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
